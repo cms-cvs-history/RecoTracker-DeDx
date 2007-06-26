@@ -1,0 +1,5 @@
+module dedxHarmonic2 = DeDxEstimatorProducer {
+        InputTag trackDeDxHits =  dedxHits
+        string estimator = "generic"
+        double exponent = -2.	
+      }

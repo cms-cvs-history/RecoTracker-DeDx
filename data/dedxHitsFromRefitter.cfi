@@ -1,0 +1,6 @@
+module dedxHits = DeDxHitsProducer {
+        InputTag tracks = ctfWithMaterialTracks
+	InputTag refittedTracks = TrackRefitter
+	InputTag trajectoryTrackAssociation = TrackRefitter
+	}
+

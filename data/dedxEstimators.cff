@@ -1,0 +1,4 @@
+
+include "TrackerReco/DeDx/data/dedxTruncated40.cfi" 
+include "TrackerReco/DeDx/data/dedxMedian.cfi" 
+include "TrackerReco/DeDx/data/dedxHarmonic2.cfi" 

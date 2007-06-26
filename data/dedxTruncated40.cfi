@@ -1,0 +1,5 @@
+module dedxTruncated40 = DeDxEstimatorProducer {
+        InputTag trackDeDxHits =  dedxHits
+        string estimator = "truncated"
+        double fraction = 0.40	
+      }

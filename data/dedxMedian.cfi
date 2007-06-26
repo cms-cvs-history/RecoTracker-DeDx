@@ -1,0 +1,4 @@
+module dedxMedian = DeDxEstimatorProducer {
+        InputTag trackDeDxHits =  dedxHits
+        string estimator = "median"
+      }

@@ -1,0 +1,6 @@
+module dedxHits = DeDxHitsProducer {
+        InputTag tracks = generalTracks
+	InputTag refittedTracks = generalTracks
+	InputTag trajectoryTrackAssociation = generalTracks
+	}
+

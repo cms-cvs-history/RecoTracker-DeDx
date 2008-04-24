@@ -1,0 +1,5 @@
+include "RecoTracker/DeDx/data/dedxHits.cfi"
+include "RecoTracker/DeDx/data/dedxTruncated40.cfi"
+include "RecoTracker/DeDx/data/dedxHarmonic2.cfi"
+
+sequence dedx = {dedxHits, (dedxTruncated40 & dedxHarmonic2) }

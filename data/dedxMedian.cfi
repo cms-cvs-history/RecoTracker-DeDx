@@ -1,4 +1,4 @@
 module dedxMedian = DeDxEstimatorProducer {
-        InputTag trackDeDxHits =  dedxHits
-        string estimator = "median"
-      }
+   InputTag TrajectoryStateOnDetInfo = Tsodi
+   string   estimator                = "median"
+}

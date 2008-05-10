@@ -2,3 +2,6 @@
 include "RecoTracker/DeDx/data/dedxTruncated40.cfi" 
 include "RecoTracker/DeDx/data/dedxMedian.cfi" 
 include "RecoTracker/DeDx/data/dedxHarmonic2.cfi" 
+
+sequence doAlldEdXEstimators = { dedxTruncated40 & dedxMedian & dedxHarmonic2 }
+

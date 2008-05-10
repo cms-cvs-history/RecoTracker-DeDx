@@ -1,0 +1,5 @@
+module Tsodi = TrajectorySateOnDetInfosProducer {
+        InputTag Track                      = generalTracks
+	InputTag trajectoryTrackAssociation = generalTracks
+}
+

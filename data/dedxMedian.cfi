@@ -1,4 +1,8 @@
 module dedxMedian = DeDxEstimatorProducer {
-   InputTag TrajectoryStateOnDetInfo = Tsodi
-   string   estimator                = "median"
+  string   estimator                  = "median"
+
+  bool     BuildFromTrajectory        = true
+  InputTag TrajectoryStateOnDetInfo   = Tsodi           #Used only if BuildFromTrajectory=False
+  InputTag Track                      = generalTracks   #Used only if BuildFromTrajectory=True
+  InputTag trajectoryTrackAssociation = generalTracks   #Used only if BuildFromTrajectory=True
 }

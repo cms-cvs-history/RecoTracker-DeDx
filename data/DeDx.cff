@@ -1,4 +1,8 @@
 include "RecoTracker/DeDx/data/TsodiFromGeneralTracks.cfi"
 include "RecoTracker/DeDx/data/dedxEstimators.cff"
 
+replace dedxMedian.BuildFromTrajectory      = false
+replace dedxTruncated40.BuildFromTrajectory = false
+replace dedxHarmonic2.BuildFromTrajectory   = false
+
 sequence dedx = {Tsodi, doAlldEdXEstimators }

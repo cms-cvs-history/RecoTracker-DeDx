@@ -1,9 +1,13 @@
 module dedxTruncated40 = DeDxEstimatorProducer {
-  string   estimator                  = "truncated"
-  double   fraction                   = 0.40	
+  InputTag  tracks                     = "generalTracks"
+  InputTag  trajectoryTrackAssociation = "generalTracks"
 
-  bool     BuildFromTrajectory        = true
-  InputTag TrajectoryStateOnDetInfo   = Tsodi           #Used only if BuildFromTrajectory=False
-  InputTag Track                      = generalTracks   #Used only if BuildFromTrajectory=True
-  InputTag trajectoryTrackAssociation = generalTracks   #Used only if BuildFromTrajectory=True
+  string  estimator      = 'truncated'
+  double  fraction       = 0.40
+
+  bool    UseStrip       = true
+  bool    UsePixel       = true
+  double  MeVperADCStrip = 3.61e-06*250
+  double  MeVperADCPixel = 3.61e-06
+
 }

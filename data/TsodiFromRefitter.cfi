@@ -1,5 +1,0 @@
-module Tsodi = TrajectorySateOnDetInfosProducer {
-        InputTag Track                      = TrackRefitter
-	InputTag trajectoryTrackAssociation = TrackRefitter
-}
-

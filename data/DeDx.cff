@@ -1,3 +1,0 @@
-include "RecoTracker/DeDx/data/dedxEstimators.cff"
-
-sequence dedx = {doAlldEdXEstimators }

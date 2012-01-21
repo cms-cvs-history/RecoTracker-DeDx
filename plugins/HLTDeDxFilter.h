@@ -24,7 +24,7 @@ class HLTDeDxFilter : public HLTFilter {
       explicit HLTDeDxFilter(const edm::ParameterSet&);
       ~HLTDeDxFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
 
    private:
       bool saveTags_;              // whether to save this tag
@@ -34,6 +34,7 @@ class HLTDeDxFilter : public HLTFilter {
       double maxETA_;
       edm::InputTag inputTracksTag_;
       edm::InputTag inputdedxTag_;
+      edm::InputTag thisModuleTag_;
 };
 
 #endif //HLTDeDxFilter_h

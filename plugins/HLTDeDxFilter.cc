@@ -26,23 +26,25 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
-
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 //
 // constructors and destructor
 //
-HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig)
+HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
-  saveTags_     = iConfig.getParameter<bool>("saveTags");
   minDEDx_	= iConfig.getParameter<double> ("minDEDx");
   minPT_        = iConfig.getParameter<double> ("minPT");
   minNOM_       = iConfig.getParameter<double> ("minNOM");
   maxETA_       = iConfig.getParameter<double> ("maxETA");
   inputTracksTag_ = iConfig.getParameter< edm::InputTag > ("inputTracksTag");
   inputdedxTag_   = iConfig.getParameter< edm::InputTag > ("inputDeDxTag");
+
+  thisModuleTag_ = edm::InputTag(iConfig.getParameter<std::string>("@module_label")); 
  
   //register your products
-  produces<trigger::TriggerFilterObjectWithRefs>();
+  produces<reco::RecoChargedCandidateCollection>();
 }
 
 HLTDeDxFilter::~HLTDeDxFilter(){}
@@ -63,37 +65,61 @@ void HLTDeDxFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 
 // ------------ method called to produce the data  ------------
 bool
-  HLTDeDxFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+  HLTDeDxFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
-  // The filter object
-  auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  //  if (saveTags_) filterobject->addCollectionTag(inputJetTag_);
 
-   edm::Handle<reco::TrackCollection> trackCollectionHandle;
-   iEvent.getByLabel(inputTracksTag_,trackCollectionHandle);
-   reco::TrackCollection trackCollection = *trackCollectionHandle.product();
+  auto_ptr<RecoChargedCandidateCollection> chargedCandidates( new std::vector<RecoChargedCandidate> );
+
+  ModuleDescription moduleDesc_;
+
+  if (saveTags()){
+     filterproduct.addCollectionTag(thisModuleTag_);
+     filterproduct.addCollectionTag(inputTracksTag_);
+     filterproduct.addCollectionTag(inputdedxTag_);
+  }
+
+  edm::Handle<reco::TrackCollection> trackCollectionHandle;
+  iEvent.getByLabel(inputTracksTag_,trackCollectionHandle);
+  reco::TrackCollection trackCollection = *trackCollectionHandle.product();
   
-   edm::Handle<edm::ValueMap<reco::DeDxData> > dEdxTrackHandle;
-   //iEvent.getByLabel(m_dEdxDiscrimTag, dEdxTrackHandle);
-   //iEvent.getByLabel("dedxHarmonic2", dEdxTrackHandle);
-   iEvent.getByLabel(inputdedxTag_, dEdxTrackHandle);
-   const edm::ValueMap<reco::DeDxData> dEdxTrack = *dEdxTrackHandle.product();
+  edm::Handle<edm::ValueMap<reco::DeDxData> > dEdxTrackHandle;
+  iEvent.getByLabel(inputdedxTag_, dEdxTrackHandle);
+  const edm::ValueMap<reco::DeDxData> dEdxTrack = *dEdxTrackHandle.product();
 
-   bool accept=false;
-   for(unsigned int i=0; i<trackCollection.size(); i++){
-      reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
-     //Track momentum is given by:
-     //track->p();
-     //You can access dE/dx Estimation of your track with:
-     if(track->pt()>minPT_ && fabs(track->eta())<maxETA_ && dEdxTrack[track].numberOfMeasurements()>minNOM_ && dEdxTrack[track].dEdx()>minDEDx_){accept=true; break;};
+  bool accept=false;
+  int  NTracks = 0;
+  for(unsigned int i=0; i<trackCollection.size(); i++){
+     reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
+    if(track->pt()>minPT_ && fabs(track->eta())<maxETA_ && dEdxTrack[track].numberOfMeasurements()>minNOM_ && dEdxTrack[track].dEdx()>minDEDx_){
+       NTracks++;
+       if (saveTags()){
+          Particle::Charge q = track->charge();
+          //SAVE DEDX INFORMATION AS IF IT WAS THE MASS OF THE PARTICLE
+          Particle::LorentzVector p4(track->px(), track->py(), track->pz(), sqrt(pow(track->p(),2) + pow(dEdxTrack[track].dEdx(),2)));
+          Particle::Point vtx(track->vx(),track->vy(), track->vz());
+          //SAVE NOH, NOM, NOS INFORMATION AS IF IT WAS THE PDGID OF THE PARTICLE
+          int Hits  = ((dEdxTrack[track].numberOfSaturatedMeasurements()&0xFF)<<16) | ((dEdxTrack[track].numberOfMeasurements()&0xFF)<<8) | (track->found()&0xFF); 
+          RecoChargedCandidate cand(q, p4, vtx, Hits, 0);
+          cand.setTrack(track);
+          chargedCandidates->push_back(cand);
+       }
+       accept=true; 
+    }
+  }
+
+  // put filter object into the Event
+   if(saveTags()){
+     edm::OrphanHandle<RecoChargedCandidateCollection> chargedCandidatesHandle = iEvent.put(chargedCandidates);
+     for(int i=0; i<NTracks; i++){
+          filterproduct.addObject(TriggerMuon,RecoChargedCandidateRef(chargedCandidatesHandle,i));
+     }
    }
-   // put filter object into the Event
-   iEvent.put(filterobject);
-   return accept;
+
+  return accept;
 }
 
 //define this as a plug-in
